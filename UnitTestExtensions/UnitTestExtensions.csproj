@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Class1.cs" />
     <Compile Include="ControlledTestMethodAttribute.cs" />
+    <Compile Include="MiniDump.cs" />
     <Compile Include="TestExtensions.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
