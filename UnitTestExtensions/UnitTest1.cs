@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Diagnostics.Tracing.Parsers;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Threading;
@@ -38,7 +39,10 @@ namespace UnitTestExtensions
             Assert.That.IsTimedOut(3000);
         }
 
-        [ControlledTestMethod(typeof(UnitTest1))]
+        [ControlledTestMethod]
+        [KernelTraceSession(KernelTraceEventParser.Keywords.All, acceptedEventNames: new string[] { "FileIO/Write" })]
+        [ClrTraceSession]
+        [TraceAssert(typeof(TraceEventCountAssertRule))]
         public void TestMethod4()
         {
             using (FileStream stream = new FileStream("testfile.txt", FileMode.Create))
@@ -52,7 +56,7 @@ namespace UnitTestExtensions
                 stream.Read(buffer, 0, 100);
                 stream.Seek(0, SeekOrigin.End);
                 stream.Write(buffer, 0, 100);
-                Thread.Sleep(5000);
+                //Thread.Sleep(5000);
             }
         }
 
