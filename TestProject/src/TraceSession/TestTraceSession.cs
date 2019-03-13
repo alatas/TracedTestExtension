@@ -52,7 +52,7 @@ public class TestTraceSession
             Name = "TestTraceThread_" + Id.ToString().ToLower()
         };
 
-        TestTraceTerminatorThread = new Thread(TerminateTest)
+        TestTraceTerminatorThread = new Thread(TerminateTraceSession)
         {
             Priority = ThreadPriority.Lowest,
             IsBackground = true,
@@ -63,7 +63,7 @@ public class TestTraceSession
         TestTraceTerminatorThread.Start();
     }
 
-    public void TerminateTest()
+    private void TerminateTraceSession()
     {
         mainTestStoppedEvent.WaitOne();
         if (TestTraceThread != null) TestTraceThread.Abort();

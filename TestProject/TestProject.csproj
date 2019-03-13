@@ -67,18 +67,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\ClrTraceSessionAttribute.cs" />
-    <Compile Include="Attributes\TraceAssertAttribute.cs" />
-    <Compile Include="ControlledTestMethodAttribute.cs" />
-    <Compile Include="Attributes\KernelTraceSessionAttribute.cs" />
-    <Compile Include="_trash\MiniDump.cs" />
-    <Compile Include="_trash\TestExtensions.cs" />
-    <Compile Include="TestTraceSession.cs" />
-    <Compile Include="Attributes\ThreadStopKernelTraceSession.cs" />
-    <Compile Include="Attributes\TraceSessionAttribute.cs" />
+    <Compile Include="src\TraceAssert\FetchedEventsCountTraceAssertAttribute.cs" />
+    <Compile Include="src\TracedTestMethodAttribute.cs" />
+    <Compile Include="src\TraceSession\ClrTraceSessionAttribute.cs" />
+    <Compile Include="src\TraceAssert\TraceAssertAttribute.cs" />
+    <Compile Include="src\TraceSession\KernelTraceSessionAttribute.cs" />
+    <Compile Include="src\TraceSession\TestTraceSession.cs" />
+    <Compile Include="src\TraceSession\ThreadStopKernelTraceSession.cs" />
+    <Compile Include="src\TraceSession\TraceSessionAttribute.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utility.cs" />
+    <Compile Include="src\Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -5,7 +5,7 @@ using System;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class KernelTraceSessionAttribute : TraceSessionAttribute
 {
-    public KernelTraceSessionAttribute(KernelTraceEventParser.Keywords KernelSessionKeywords = KernelTraceEventParser.Keywords.Default,
+    public KernelTraceSessionAttribute(KernelTraceEventParser.Keywords KernelSessionKeywords = KernelTraceEventParser.Keywords.All,
         string[] acceptedEventProviderNames = null,
         string[] rejectedEventProviderNames = null,
         string[] acceptedEventNames = null,
