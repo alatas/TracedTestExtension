@@ -2,6 +2,7 @@
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using System;
+using System.Diagnostics;
 using System.Threading;
 
 public class TestTraceSession
@@ -116,7 +117,7 @@ public class TestTraceSession
             }
         }, (TraceEvent evt) =>
         {
-            if (evt.ThreadID == mainTestThreadId || SessionAttribute.IsProcessTracing(evt.ProcessName))
+            if (evt.ThreadID == mainTestThreadId || SessionAttribute.IsProcessTracing(evt.ProcessName) || (SessionAttribute.includeOwnProcess && evt.ProcessID == Process.GetCurrentProcess().Id))
             {
                 TraceFetched(evt);
             }

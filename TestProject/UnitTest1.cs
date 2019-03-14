@@ -1,6 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Diagnostics.Tracing.Parsers.Kernel;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace UnitTestExtensions
 {
@@ -57,20 +60,16 @@ namespace UnitTestExtensions
         }
 
         [TracedTestMethod]
-        [KernelTraceSession(acceptedEventNames: new string[] { "FileIO", "Memory" })]
+        [KernelTraceSession(acceptedEventNames: new string[] { "VirtualMem/Alloc" })]
+        [FetchedEventsSumTraceAssert("VirtualMem/Alloc", typeof(VirtualAllocTraceData), "Length", 20000000, Comparison.lowerOrEqualThan)]
         public void TestMethod5()
         {
-            using (FileStream stream = new FileStream("testfile.txt", FileMode.Create))
+            for (int i = 0; i < 100; i++)
             {
-                stream.WriteByte(200);
-                stream.Seek(99, SeekOrigin.Begin);
-                stream.WriteByte(201);
-                stream.Seek(0, SeekOrigin.Begin);
-                byte[] buffer = new byte[100];
-                stream.Read(buffer, 0, 100);
-                stream.Seek(0, SeekOrigin.End);
-                stream.Write(buffer, 0, 100);
+                var pv_Memory = Marshal.AllocHGlobal(0x800000);
+                Thread.Sleep(100);
             }
         }
+
     }
 }

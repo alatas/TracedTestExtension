@@ -94,6 +94,8 @@ public class TracedTestMethodAttribute : TestMethodAttribute
             {
                 return $"{cevt.TimeStamp.ToString("o")} {cevt.EventName} - {cevt.ProcessName} - {cevt.ThreadID} - {cevt.FileName}";
             }
+            else if (evt is VirtualAllocTraceData mevt)
+                return $"{mevt.TimeStamp.ToString("o")} {mevt.EventName} - {mevt.ProcessName} - {mevt.ThreadID} -l {mevt.Length} -a {mevt.BaseAddr}";
             else
             {
                 return $"{evt.TimeStamp.ToString("o")} {evt.EventName} - {evt.ProcessName} - {evt.ThreadID}";

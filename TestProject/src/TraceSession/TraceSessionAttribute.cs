@@ -19,6 +19,7 @@ public class TraceSessionAttribute : Attribute
     public readonly string[] inclusiveProcessNames;
     public readonly int[] includedEventIds = null;
     public readonly int[] excludedEventIds = null;
+    public readonly bool includeOwnProcess = false;
 
     public TraceSessionAttribute(string providerName,
         Type eventParserType,
@@ -30,7 +31,8 @@ public class TraceSessionAttribute : Attribute
         string[] rejectedEventNames = null,
         string[] inclusiveProcessNames = null,
         int[] includedEventIds = null,
-        int[] excludedEventIds = null)
+        int[] excludedEventIds = null,
+        bool includeOwnProcess = false)
     {
         this.providerName = providerName;
         this.eventParserType = eventParserType;
@@ -43,6 +45,7 @@ public class TraceSessionAttribute : Attribute
         this.inclusiveProcessNames = inclusiveProcessNames;
         this.includedEventIds = includedEventIds;
         this.excludedEventIds = excludedEventIds;
+        this.includeOwnProcess = includeOwnProcess;
     }
 
     public TraceEventProviderOptions TraceEventProviderOptions

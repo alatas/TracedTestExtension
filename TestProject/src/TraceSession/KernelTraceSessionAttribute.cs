@@ -12,7 +12,8 @@ public class KernelTraceSessionAttribute : TraceSessionAttribute
         string[] rejectedEventNames = null,
         string[] inclusiveProcessNames = null,
         int[] includedEventIds = null,
-        int[] excludedEventIds = null) : base("kernel",
+        int[] excludedEventIds = null, 
+        bool includeOwnProcess = false) : base("kernel",
             typeof(KernelTraceEventParser),
             KernelTraceEventParser.KernelSessionName,
             TraceEventLevel.Verbose,
@@ -22,7 +23,8 @@ public class KernelTraceSessionAttribute : TraceSessionAttribute
             rejectedEventNames,
             inclusiveProcessNames,
             includedEventIds,
-            excludedEventIds)
+            excludedEventIds,
+            includeOwnProcess)
     {
         this.KernelSessionKeywords = KernelSessionKeywords;
     }

@@ -14,7 +14,8 @@ public class ClrTraceSessionAttribute : TraceSessionAttribute
         string[] rejectedEventNames = null,
         string[] inclusiveProcessNames = null,
         int[] includedEventIds = null,
-        int[] excludedEventIds = null) : base(ClrTraceEventParser.ProviderName,
+        int[] excludedEventIds = null,
+        bool includeOwnProcess = false) : base(ClrTraceEventParser.ProviderName,
             typeof(ClrTraceEventParser),
             sessionName,
             TraceEventLevel.Verbose,
@@ -24,7 +25,8 @@ public class ClrTraceSessionAttribute : TraceSessionAttribute
             rejectedEventNames,
             inclusiveProcessNames,
             includedEventIds,
-            excludedEventIds)
+            excludedEventIds,
+            includeOwnProcess)
     {
 
     }
