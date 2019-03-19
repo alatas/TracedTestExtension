@@ -4,9 +4,13 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using TTE.Core.TraceAssert;
+using TTE.Core.TraceSession;
+using TTE.MSTest;
 
-namespace UnitTestExtensions
+namespace TTE.Tests.MSTest.net45
 {
+
     [TestClass]
     public class UnitTest1
     {
@@ -15,24 +19,19 @@ namespace UnitTestExtensions
         {
             int sum = 1 + 2;
             Assert.AreEqual(3, sum);
-            Assert.Fail("Fail Message");
         }
 
         [TracedTestMethod]
         public void TestMethod2()
         {
-            int[] buffer = new int[(int)Math.Pow(2, 24)];
-            for (int i = 1; i < Math.Pow(2, 24); i++)
-            {
-                Random r = new Random();
-                buffer[i] = r.Next(i);
-            }
+            int sum = 1 + 2;
+            Assert.AreEqual(3, sum);
         }
 
         [TracedTestMethod]
         public void TestMethod3()
         {
-            for (int i = 1; i < Math.Pow(2, 22); i++)
+            for (int i = 1; i < Math.Pow(2, 8); i++)
             {
                 Random r = new Random();
                 int a = r.Next(i);
@@ -42,8 +41,8 @@ namespace UnitTestExtensions
         [TracedTestMethod]
         [KernelTraceSession(acceptedEventNames: new string[] { "FileIO/Write" })]
         [ClrTraceSession(acceptedEventNames: new string[] { "GC/SetGCHandle" })]
-        [FetchedEventsCountTraceAssert("FileIO/Write", 4, Comparison.greaterOrEqualThan)]
-        [FetchedEventsCountTraceAssert("FileIO/Write", 6, Comparison.lowerThan)]
+        [FetchedEventsCountTraceAssert("FileIO/Write", 4, DecimalComparison.greaterOrEqualThan)]
+        [FetchedEventsCountTraceAssert("FileIO/Write", 6, DecimalComparison.lowerThan)]
         public void TestMethod4()
         {
             using (FileStream stream = new FileStream("testfile.txt", FileMode.Create))
@@ -61,7 +60,7 @@ namespace UnitTestExtensions
 
         [TracedTestMethod]
         [KernelTraceSession(acceptedEventNames: new string[] { "VirtualMem/Alloc" })]
-        [FetchedEventsSumTraceAssert("VirtualMem/Alloc", typeof(VirtualAllocTraceData), "Length", 20000000, Comparison.lowerOrEqualThan)]
+        [FetchedEventsSumTraceAssert("VirtualMem/Alloc", typeof(VirtualAllocTraceData), "Length", 20000000, DecimalComparison.lowerOrEqualThan)]
         public void TestMethod5()
         {
             for (int i = 0; i < 100; i++)
