@@ -21,6 +21,9 @@ namespace TTE.Core.TraceSession
         public delegate void TestThreadStoppedDelegate(TraceEvent fetchedEvent);
         public event TestThreadStoppedDelegate TestThreadStopped;
 
+        public delegate void TraceSessionErrorDelegate(Exception exception);
+        public event TraceSessionErrorDelegate TraceSessionError;
+
         private TraceEventSession traceEventSession;
         private TraceEventParser traceEventParser;
         private readonly int mainTestThreadId;
@@ -42,12 +45,14 @@ namespace TTE.Core.TraceSession
             this.traceSessionReadyCounter = traceSessionReadyCounter;
             Id = Guid.NewGuid();
 
-            traceEventSession = new TraceEventSession(sessionAttribute.sessionName, sessionAttribute.IsKernelSession ? TraceEventSessionOptions.NoRestartOnCreate : TraceEventSessionOptions.Create)
+            //trace event session is created by the trace session properties
+            traceEventSession = new TraceEventSession(SessionAttribute.sessionName, SessionAttribute.IsKernelSession ? TraceEventSessionOptions.NoRestartOnCreate : TraceEventSessionOptions.Create)
             {
                 BufferSizeMB = 128,
                 CpuSampleIntervalMSec = 10,
             };
 
+            //main session listener thread is created
             TestTraceThread = new Thread(TraceListener)
             {
                 Priority = ThreadPriority.Lowest,
@@ -55,19 +60,26 @@ namespace TTE.Core.TraceSession
                 Name = "TestTraceThread_" + Id.ToString().ToLower()
             };
 
+            //main session listener terminator thread is also created 
+            //to terminate the main listener thread when the stop signal is set
             TestTraceTerminatorThread = new Thread(TerminateTraceSession)
             {
                 Priority = ThreadPriority.Lowest,
                 IsBackground = true,
                 Name = "TestTraceThread_" + Id.ToString().ToLower() + "_Terminator"
             };
+        }
 
+        public void StartSession()
+        {
             TestTraceThread.Start();
             TestTraceTerminatorThread.Start();
         }
 
         private void TerminateTraceSession()
         {
+            //wait until the stop signal is set, 
+            //then abort the main listener thread of this session
             mainTestStoppedEvent.WaitOne();
             if (TestTraceThread != null) TestTraceThread.Abort();
         }
@@ -76,59 +88,88 @@ namespace TTE.Core.TraceSession
         {
             try
             {
+                //listener setups the providers and parser first
                 SetupProviderAndParser();
+
+                //then signal the main runner that I'm ready to listen
                 traceSessionReadyCounter.Signal();
+
+                //wait the start event
                 mainTestStartedEvent.WaitOne();
+
+                //start to listen after the start signal is set
                 traceEventSession.Source.Process();
             }
             catch (ThreadAbortException)
             {
+                //when thread is aborted, it stops listening
                 traceEventSession.Source.StopProcessing();
+            }
+            catch (Exception ex)
+            {
+                TraceSessionError(ex);
             }
         }
 
         private void SetupProviderAndParser()
         {
-            if (SessionAttribute.IsKernelSession)
+            try
             {
-                if (SessionAttribute is KernelTraceSessionAttribute)
+                //enabling the providers
+                if (SessionAttribute.IsKernelSession)
                 {
-                    traceEventSession.EnableKernelProvider(((KernelTraceSessionAttribute)SessionAttribute).KernelSessionKeywords);
+                    if (SessionAttribute is KernelTraceSessionAttribute)
+                    {
+                        traceEventSession.EnableKernelProvider(((KernelTraceSessionAttribute)SessionAttribute).KernelSessionKeywords);
+                    }
+                    else
+                    {
+                        traceEventSession.EnableKernelProvider(KernelTraceEventParser.Keywords.Default);
+                    }
                 }
                 else
                 {
-                    traceEventSession.EnableKernelProvider(KernelTraceEventParser.Keywords.Default);
+                    traceEventSession.EnableProvider(SessionAttribute.providerName, SessionAttribute.providerLevel, options: SessionAttribute.TraceEventProviderOptions);
                 }
+
+                //creating the trace event parser
+                traceEventParser = Activator.CreateInstance(SessionAttribute.eventParserType, traceEventSession.Source) as TraceEventParser;
+
+                //set the trace event parser through session's properties
+                traceEventParser.AddCallbackForProviderEvents(CallbackForProviderEvents, CallbackForEvents);
+            }
+            catch (Exception ex)
+            {
+                TraceSessionError(ex);
+            }
+        }
+
+        private EventFilterResponse CallbackForProviderEvents(string providerName, string eventName)
+
+        {
+            if (SessionAttribute.CanProviderNameAccepted(providerName) && SessionAttribute.CanEventNameAccepted(eventName))
+            {
+                return EventFilterResponse.AcceptEvent;
             }
             else
             {
-                traceEventSession.EnableProvider(SessionAttribute.providerName, SessionAttribute.providerLevel, options: SessionAttribute.TraceEventProviderOptions);
+                return EventFilterResponse.RejectEvent;
+            }
+        }
+
+        private void CallbackForEvents(TraceEvent evt)
+        {
+            if (evt.ThreadID == mainTestThreadId || SessionAttribute.IsProcessTracing(evt.ProcessName) || (SessionAttribute.includeOwnProcess && evt.ProcessID == Process.GetCurrentProcess().Id))
+            {
+                //returning the fetched event to main runner
+                TraceFetched(evt);
             }
 
-            traceEventParser = Activator.CreateInstance(SessionAttribute.eventParserType, traceEventSession.Source) as TraceEventParser;
-
-            traceEventParser.AddCallbackForProviderEvents((providerName, eventName) =>
+            if (evt.ThreadID == mainTestThreadId && evt.EventName == "Thread/Stop" && SessionAttribute is ThreadStopKernelTraceSession)
             {
-                if (SessionAttribute.CanProviderNameAccepted(providerName) && SessionAttribute.CanEventNameAccepted(eventName))
-                {
-                    return EventFilterResponse.AcceptEvent;
-                }
-                else
-                {
-                    return EventFilterResponse.RejectEvent;
-                }
-            }, (TraceEvent evt) =>
-            {
-                if (evt.ThreadID == mainTestThreadId || SessionAttribute.IsProcessTracing(evt.ProcessName) || (SessionAttribute.includeOwnProcess && evt.ProcessID == Process.GetCurrentProcess().Id))
-                {
-                    TraceFetched(evt);
-                }
-
-                if (evt.ThreadID == mainTestThreadId && evt.EventName == "Thread/Stop" && SessionAttribute is ThreadStopKernelTraceSession)
-                {
-                    TestThreadStopped(evt);
-                }
-            });
+                //this is a special event to realize the main test thread is stopped
+                TestThreadStopped(evt);
+            }
         }
     }
 }

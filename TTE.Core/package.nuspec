@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>TracedTestExtension</id>
+    <version>1.0.0-beta1</version>
+    <title>Traced Test Extension (Core)</title>
+    <authors>Sukru Alatas</authors>
+    <owners>Sukru Alatas</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/alatas/TracedTestExtension</projectUrl>
+    <iconUrl>https://github.com/alatas/TracedTestExtension/raw/master/icon.png</iconUrl>
+    <description>Traced Test Extension (TTE) is an extension to major testing frameworks. It extends their capabilities to record and assert the events provided by Event Tracing for Windows (ETW).</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2019</copyright>
+    <license type="expression">GPL-3.0-only</license>
+    <tags>tte ETW test testing xunit nunit mstest2</tags>
+    <dependencies>
+      <dependency id="Microsoft.Diagnostics.Tracing.TraceEvent" version="2.0.38" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\**\TTE.Core.dll" target="lib" />
+    <file src="bin\Release\**\TTE.Core.pdb" target="lib" />
+  </files>
+</package>

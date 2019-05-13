@@ -40,7 +40,6 @@ namespace TTE.Tests.MSTest.net45
 
         [TracedTestMethod]
         [KernelTraceSession(acceptedEventNames: new string[] { "FileIO/Write" })]
-        [ClrTraceSession(acceptedEventNames: new string[] { "GC/SetGCHandle" })]
         [FetchedEventsCountTraceAssert("FileIO/Write", 4, DecimalComparison.greaterOrEqualThan)]
         [FetchedEventsCountTraceAssert("FileIO/Write", 6, DecimalComparison.lowerThan)]
         public void TestMethod4()
