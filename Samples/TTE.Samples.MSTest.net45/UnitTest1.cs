@@ -42,6 +42,8 @@ namespace TTE.Tests.MSTest.net45
         [KernelTraceSession(acceptedEventNames: new string[] { "FileIO/Write" })]
         [FetchedEventsCountTraceAssert("FileIO/Write", 4, DecimalComparison.greaterOrEqualThan)]
         [FetchedEventsCountTraceAssert("FileIO/Write", 6, DecimalComparison.lowerThan)]
+        [FetchedEventsSumTraceAssert("FileIO/Write", typeof(FileIOReadWriteTraceData), "IoSize", 203,
+            DecimalComparison.equal)]
         public void TestMethod4()
         {
             using (FileStream stream = new FileStream("testfile.txt", FileMode.Create))
